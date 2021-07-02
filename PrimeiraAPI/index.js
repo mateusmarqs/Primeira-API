@@ -69,8 +69,9 @@ var DB = {
 }
 
 app.get('/games', auth, (req, res) => {
+
     res.statusCode = 200
-    res.json(DB.games)
+    res.json(DB.games) // utiliza o _ para informar ao usuário que não é uma informação principal, e sim secundária.
 })
 
 app.get('/game/:id', auth,(req, res) => {
@@ -81,7 +82,31 @@ app.get('/game/:id', auth,(req, res) => {
         if (id < 0 || id > DB.games.length - 1) {
             res.sendStatus(404)
         } else {
-            res.json(DB.games[id])
+
+            var HATEOAS = [
+                {
+                    href: 'http://localhost:4567/game/'+id,
+                    method: 'DELETE',
+                    rel: 'delete_game'
+                },
+                {
+                    href: 'http://localhost:4567/game/'+id,
+                    method: 'GET',
+                    rel: 'get_game' 
+                },
+                {
+                    href: 'http://localhost:4567/game/'+id,
+                    method: 'PUT',
+                    rel: 'edit_game' 
+                },
+                {
+                    href: 'http://localhost:4567/auth',
+                    method: 'POST',
+                    rel: 'login' 
+                }
+            ]
+
+            res.json({games: DB.games[id], _links: HATEOAS})
         }
     }
 })
